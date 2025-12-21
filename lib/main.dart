@@ -1,24 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'screens/market/market_screen.dart';
+
+import 'viewmodels/chart_viewmodel.dart';
+import 'viewmodels/news_viewmodel.dart';
 import 'viewmodels/market_viewmodel.dart';
+import 'screens/market/market_screen.dart';
 
 void main() {
-  runApp(const CryptoApp());
+  runApp(const CryptoInvestingApp());
 }
 
-class CryptoApp extends StatelessWidget {
-  const CryptoApp({super.key});
+class CryptoInvestingApp extends StatelessWidget {
+  const CryptoInvestingApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        /// 📊 MARKET DATA
         ChangeNotifierProvider(create: (_) => MarketViewModel()),
+
+        /// 📈 CHART DATA
+        ChangeNotifierProvider(create: (_) => ChartViewModel()),
+
+        /// 📰 NEWS DATA
+        ChangeNotifierProvider(create: (_) => NewsViewModel()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Cryptoinvesting.com',
         theme: ThemeData.dark(),
         home: const MarketScreen(),
       ),
