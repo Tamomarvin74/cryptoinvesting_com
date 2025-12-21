@@ -30,12 +30,15 @@ class ChartScreen extends StatelessWidget {
                 _Tabs(),
                 Expanded(child: _Chart(vm)),
                 _Timeframes(symbol),
+                _BuySellButtons(symbol), // ✅ BUY / SELL ADDED HERE
                 _Stats(vm),
               ],
             ),
     );
   }
 }
+
+/* ===================== PRICE HEADER ===================== */
 
 class _PriceHeader extends StatelessWidget {
   final ChartViewModel vm;
@@ -71,6 +74,8 @@ class _PriceHeader extends StatelessWidget {
   }
 }
 
+/* ===================== TABS ===================== */
+
 class _Tabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -91,6 +96,8 @@ class _Tabs extends StatelessWidget {
     );
   }
 }
+
+/* ===================== CHART ===================== */
 
 class _Chart extends StatelessWidget {
   final ChartViewModel vm;
@@ -122,6 +129,8 @@ class _Chart extends StatelessWidget {
   }
 }
 
+/* ===================== TIMEFRAMES ===================== */
+
 class _Timeframes extends StatelessWidget {
   final String symbol;
   const _Timeframes(this.symbol);
@@ -147,6 +156,111 @@ class _Timeframes extends StatelessWidget {
     );
   }
 }
+
+/* ===================== BUY / SELL BUTTONS ===================== */
+
+class _BuySellButtons extends StatelessWidget {
+  final String symbol;
+  const _BuySellButtons(this.symbol);
+
+  void _onBuy(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF0B0E11),
+        title: const Text('Buy', style: TextStyle(color: Colors.white)),
+        content: Text(
+          'Buy $symbol',
+          style: const TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onSell(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF0B0E11),
+        title: const Text('Sell', style: TextStyle(color: Colors.white)),
+        content: Text(
+          'Sell $symbol',
+          style: const TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: 48,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                onPressed: () => _onBuy(context),
+                child: const Text(
+                  'Buy',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: SizedBox(
+              height: 48,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                onPressed: () => _onSell(context),
+                child: const Text(
+                  'Sell',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/* ===================== STATS ===================== */
 
 class _Stats extends StatelessWidget {
   final ChartViewModel vm;
