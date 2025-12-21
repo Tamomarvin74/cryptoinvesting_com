@@ -5,21 +5,22 @@ import '../services/news_service.dart';
 class NewsViewModel extends ChangeNotifier {
   final NewsService _service = NewsService();
 
-  bool loading = false;
   List<News> news = [];
+  bool loading = false;
+  String? error;
 
   Future<void> loadNews() async {
-    try {
-      loading = true;
-      notifyListeners();
+    loading = true;
+    error = null;
+    notifyListeners();
 
+    try {
       news = await _service.fetchNews();
     } catch (e) {
-      debugPrint('News load error: $e');
-      news = [];
-    } finally {
-      loading = false;
-      notifyListeners();
+      error = e.toString();
     }
+
+    loading = false;
+    notifyListeners();
   }
 }

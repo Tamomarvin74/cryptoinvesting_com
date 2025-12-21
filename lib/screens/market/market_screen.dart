@@ -1,12 +1,18 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+/// ✅ VIEWMODELS (plural — matches your folder)
 import '../../viewmodels/market_viewmodel.dart';
-import '../../viewmodels/chart_viewmodel.dart'; // ✅ ADDED
+import '../../viewmodels/chart_viewmodel.dart';
+
+/// ✅ SCREENS
 import '../chart/chart_screen.dart';
+import '../news/news_screen.dart';
+import '../ideas/ideas_screen.dart';
+import '../watchlist/watchlist_screen.dart';
+import '../more/more_screen.dart';
 
 class MarketScreen extends StatefulWidget {
   const MarketScreen({super.key});
@@ -48,7 +54,7 @@ class _MarketScreenState extends State<MarketScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF0B0E11),
 
-      /// 🔝 TOP BAR
+      /// 🔝 APP BAR
       appBar: AppBar(
         backgroundColor: const Color(0xFF0B0E11),
         elevation: 0,
@@ -67,10 +73,8 @@ class _MarketScreenState extends State<MarketScreen> {
 
           return InkWell(
             onTap: () {
-              /// 🔥 LOAD CHART DATA FOR THIS SYMBOL
               context.read<ChartViewModel>().loadChart(m.symbol, '1D');
 
-              /// 🔁 NAVIGATE TO CHART
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -85,7 +89,7 @@ class _MarketScreenState extends State<MarketScreen> {
               ),
               child: Row(
                 children: [
-                  /// LEFT (NAME + TIME + PAIR)
+                  /// LEFT
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,7 +114,7 @@ class _MarketScreenState extends State<MarketScreen> {
                     ),
                   ),
 
-                  /// RIGHT (PRICE + CHANGE)
+                  /// RIGHT
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -150,11 +154,34 @@ class _MarketScreenState extends State<MarketScreen> {
         onTap: (i) {
           setState(() => _currentIndex = i);
 
-          if (i != 0) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const _BlankScreen()),
-            );
+          switch (i) {
+            case 1:
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NewsScreen()),
+              );
+              break;
+
+            case 2:
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const IdeasScreen()),
+              );
+              break;
+
+            case 3:
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const WatchlistScreen()),
+              );
+              break;
+
+            case 4:
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MoreScreen()),
+              );
+              break;
           }
         },
         items: const [
@@ -173,24 +200,6 @@ class _MarketScreenState extends State<MarketScreen> {
           ),
           BottomNavigationBarItem(icon: Icon(Icons.menu), label: 'More'),
         ],
-      ),
-    );
-  }
-}
-
-/// 🔲 BLANK SCREENS (FOR NOW)
-class _BlankScreen extends StatelessWidget {
-  const _BlankScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color(0xFF0B0E11),
-      body: Center(
-        child: Text(
-          'Coming Soon',
-          style: TextStyle(color: Colors.grey, fontSize: 18),
-        ),
       ),
     );
   }
