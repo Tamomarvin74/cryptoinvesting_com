@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/news_article.dart';
 import '../../services/news_service.dart';
 import 'news_detail.dart';
+import '../../models/comment_store.dart';
 
 class NewsScreen extends StatefulWidget {
   const NewsScreen({super.key});
@@ -137,35 +138,92 @@ class _NewsScreenState extends State<NewsScreen>
           final news = snap.data ?? [];
 
           return ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
             itemCount: news.length,
             itemBuilder: (_, i) {
               final n = news[i];
-              return ListTile(
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    n.image,
-                    width: 70,
-                    height: 70,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                title: Text(
-                  n.title,
-                  style: const TextStyle(color: Colors.white),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text(
-                  n.source,
-                  style: const TextStyle(color: Colors.grey),
-                ),
-                onTap: () {
-                  Navigator.push(
+              final commentCount = CommentStore.count(n.id);
+
+              return InkWell(
+                onTap: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => NewsDetail(article: n)),
                   );
+                  setState(() {}); // ✅ refresh comment count
                 },
+                child: Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E222D),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // IMAGE
+                      ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(14),
+                        ),
+                        child: Image.network(
+                          n.image,
+                          height: 190,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+
+                      // CONTENT
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              n.title,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+
+                            Row(
+                              children: [
+                                Text(
+                                  '${n.source} • ${n.timeAgo}',
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const Spacer(),
+                                const Icon(
+                                  Icons.chat_bubble_outline,
+                                  size: 16,
+                                  color: Colors.grey,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '$commentCount',
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               );
             },
           );
