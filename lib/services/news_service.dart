@@ -1,36 +1,36 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
-import '../models/news.dart';
+import '../models/news_article.dart';
 
 class NewsService {
-  /// 🔑 PUT YOUR REAL API KEY HERE
-  static const String _apiKey = 'c9b998f88882ceb143cc1047a24d91de1feef5d3';
+  static const String _apiKey = '5f310f22d0ad44429ecdba8debabb0d9';
 
-  static const String _baseUrl = 'https://cryptopanic.com/api/v1/posts/';
+  Future<List<NewsArticle>> fetchCryptoNews({String query = ''}) async {
+    final q = query.isEmpty ? 'crypto' : query;
 
-  Future<List<News>> fetchNews() async {
     final uri = Uri.parse(
-      '$_baseUrl?auth_token=$_apiKey&public=true&kind=news',
+      'https://newsapi.org/v2/everything'
+      '?q=$q'
+      '&language=en'
+      '&sortBy=publishedAt'
+      '&pageSize=20'
+      '&apiKey=$_apiKey',
     );
 
-    try {
-      final response = await http.get(uri);
+    final response = await http.get(uri);
 
-      if (response.statusCode != 200) {
-        throw Exception('HTTP ${response.statusCode}');
-      }
-
-      final data = json.decode(response.body);
-
-      if (data == null || data['results'] == null) {
-        throw Exception('Invalid API response');
-      }
-
-      return (data['results'] as List).map((e) => News.fromJson(e)).toList();
-    } catch (e) {
-      // 🔥 NEVER CRASH THE APP
-      throw Exception('Failed to load news: $e');
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Failed to load news (${response.statusCode}): ${response.body}',
+      );
     }
+
+    final decoded = json.decode(response.body);
+    final List articles = decoded['articles'] ?? [];
+
+    return articles
+        .map((e) => NewsArticle.fromJson(e))
+        .where((a) => a.title.isNotEmpty)
+        .toList();
   }
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../viewmodels/theme_viewmodel.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
@@ -6,28 +9,28 @@ class MoreScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0E11),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0E11),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         title: const Text('More'),
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 12),
-            child: Icon(Icons.settings, color: Colors.white),
+            child: Icon(Icons.settings),
           ),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(12),
         children: [
-          _TopGrid(),
+          const _TopGrid(),
           const SizedBox(height: 20),
 
           /// TRACK
           _Section(
             title: 'Track',
-            items: [
+            items: const [
               _MoreItem(Icons.notifications_none, 'Alerts'),
               _MoreItem(Icons.bookmark_border, 'Saved Items'),
               _MoreItem(Icons.trending_up, 'My Sentiments'),
@@ -40,7 +43,7 @@ class MoreScreen extends StatelessWidget {
           /// LIVE MARKETS
           _Section(
             title: 'Live Markets',
-            items: [
+            items: const [
               _MoreItem(Icons.currency_bitcoin, 'Cryptocurrency'),
               _MoreItem(Icons.show_chart, 'Trending Stocks'),
               _MoreItem(Icons.access_time, 'Pre Market'),
@@ -49,12 +52,12 @@ class MoreScreen extends StatelessWidget {
           ),
 
           const SizedBox(height: 20),
-          _Divider(),
+          const _Divider(),
 
           /// TOOLS
           _Section(
             title: 'Tools',
-            items: [
+            items: const [
               _MoreItem(Icons.calculate_outlined, 'Currency Converter'),
               _MoreItem(Icons.tune, 'Stock Screener'),
               _MoreItem(Icons.video_call_outlined, 'Webinars'),
@@ -62,19 +65,27 @@ class MoreScreen extends StatelessWidget {
             ],
           ),
 
-          _Divider(),
+          const _Divider(),
 
           /// MORE
           _Section(
             title: 'More',
-            items: [
+            items: const [
               _MoreItem(Icons.new_releases_outlined, "What's New"),
               _MoreItem(Icons.help_outline, 'Help Center'),
               _MoreItem(Icons.feedback_outlined, 'Send Feedback'),
-              _MoreItem(
-                Icons.notifications_outlined,
-                'Push Notification Settings',
-              ),
+            ],
+          ),
+
+          /// 🌙 DARK MODE TOGGLE
+          const SizedBox(height: 8),
+          _ThemeToggleTile(),
+
+          const SizedBox(height: 8),
+
+          _Section(
+            title: '',
+            items: const [
               _MoreItem(Icons.settings_outlined, 'Settings'),
               _MoreItem(Icons.person_add_alt_1_outlined, 'Invite Friends'),
               _MoreItem(Icons.gavel_outlined, 'Legal'),
@@ -87,7 +98,11 @@ class MoreScreen extends StatelessWidget {
   }
 }
 
+/* -------------------- TOP GRID -------------------- */
+
 class _TopGrid extends StatelessWidget {
+  const _TopGrid();
+
   @override
   Widget build(BuildContext context) {
     return GridView.count(
@@ -119,24 +134,23 @@ class _GridItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E222D),
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: Colors.white),
+            Icon(icon),
             const Spacer(),
-            Text(
-              title,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-            ),
+            Text(title, style: const TextStyle(fontSize: 14)),
           ],
         ),
       ),
     );
   }
 }
+
+/* -------------------- SECTION -------------------- */
 
 class _Section extends StatelessWidget {
   final String title;
@@ -149,20 +163,21 @@ class _Section extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
-          child: Text(
-            title,
-            style: const TextStyle(
-              color: Colors.grey,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
+        if (title.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
+            child: Text(
+              title,
+              style: const TextStyle(
+                color: Colors.grey,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-        ),
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF1E222D),
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(children: items),
@@ -171,6 +186,8 @@ class _Section extends StatelessWidget {
     );
   }
 }
+
+/* -------------------- MORE ITEM -------------------- */
 
 class _MoreItem extends StatelessWidget {
   final IconData icon;
@@ -190,13 +207,13 @@ class _MoreItem extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, color: isRed ? Colors.red : Colors.white),
+            Icon(icon, color: isRed ? Colors.red : null),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 title,
                 style: TextStyle(
-                  color: isRed ? Colors.red : Colors.white,
+                  color: isRed ? Colors.red : null,
                   fontSize: 14,
                 ),
               ),
@@ -209,15 +226,49 @@ class _MoreItem extends StatelessWidget {
   }
 }
 
+/* -------------------- THEME TOGGLE -------------------- */
+
+class _ThemeToggleTile extends StatelessWidget {
+  const _ThemeToggleTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ThemeViewModel>(
+      builder: (context, themeVM, _) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: ListTile(
+            leading: Icon(themeVM.isDark ? Icons.dark_mode : Icons.light_mode),
+            title: const Text('Dark Mode'),
+            trailing: Switch(
+              value: themeVM.isDark,
+              onChanged: (_) => themeVM.toggleTheme(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/* -------------------- DIVIDER -------------------- */
+
 class _Divider extends StatelessWidget {
+  const _Divider();
+
   @override
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.symmetric(vertical: 16),
-      child: Divider(color: Color(0xFF1E222D), thickness: 1, height: 1),
+      child: Divider(thickness: 1, height: 1),
     );
   }
 }
+
+/* -------------------- BLANK PAGE -------------------- */
 
 void _openBlank(BuildContext context, String title) {
   Navigator.push(
@@ -233,11 +284,7 @@ class _BlankPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0E11),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0E11),
-        title: Text(title),
-      ),
+      appBar: AppBar(title: Text(title)),
       body: const Center(
         child: Text(
           'Coming Soon',
