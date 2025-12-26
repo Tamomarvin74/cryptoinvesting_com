@@ -11,6 +11,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  video_player: ^2.8.2
+  google_mobile_ads: ^5.0.0
+
   # In-app purchases (PRO subscription)
   in_app_purchase: ^3.2.0
 

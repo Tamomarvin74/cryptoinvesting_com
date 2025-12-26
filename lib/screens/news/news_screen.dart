@@ -3,6 +3,7 @@ import '../../models/news_article.dart';
 import '../../services/news_service.dart';
 import 'news_detail.dart';
 import '../../models/pro_store.dart';
+import 'ad_campaign_screen.dart';
 
 class NewsScreen extends StatefulWidget {
   const NewsScreen({super.key});
@@ -51,7 +52,7 @@ class _NewsScreenState extends State<NewsScreen>
         children: [
           _searchBar(),
 
-          // 🔒 PRO banner shown ONCE
+          // 🔒 PRO banner shown once
           if (!ProStore.isPro) _proBanner(),
 
           Expanded(
@@ -140,28 +141,22 @@ class _NewsScreenState extends State<NewsScreen>
 
           final news = snap.data ?? [];
 
-          if (news.isEmpty) {
-            return const Center(
-              child: Text(
-                'No news available',
-                style: TextStyle(color: Colors.grey),
-              ),
-            );
-          }
-
           return ListView.builder(
             physics: const AlwaysScrollableScrollPhysics(),
             itemCount: news.length,
             itemBuilder: (_, i) {
               final n = news[i];
 
-              // 🔒 LOCK EVERY 5TH ARTICLE FOR FREE USERS
-              final bool isLocked = !ProStore.isPro && i % 5 == 0;
+              // 🔒 lock every 5th article
+              final bool isLocked =
+                  !ProStore.isPro &&
+                  !ProStore.isArticleUnlocked(n.id) &&
+                  i % 5 == 0;
 
               return GestureDetector(
-                onTap: () {
+                onTap: () async {
                   if (isLocked) {
-                    _showProDialog();
+                    await _showProDialog(n.id); // ✅ FIXED
                     return;
                   }
 
@@ -200,7 +195,7 @@ class _NewsScreenState extends State<NewsScreen>
     );
   }
 
-  // 🧱 NEWS CARD UI
+  // 🧱 NEWS CARD
   Widget _newsCard(NewsArticle n) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -229,27 +224,20 @@ class _NewsScreenState extends State<NewsScreen>
     );
   }
 
-  // 🔔 PRO DIALOG
-  void _showProDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('PRO Required'),
-        content: const Text('Unlock premium news with PRO subscription.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // 🔜 later: open IAP purchase screen
-            },
-            child: const Text('Go PRO'),
-          ),
-        ],
+  // 🚀 AD CAMPAIGN → UNLOCK ARTICLE
+  Future<void> _showProDialog(String articleId) async {
+    final unlocked = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => AdCampaignScreen(articleId: articleId),
       ),
     );
+
+    if (unlocked == true) {
+      setState(() {
+        ProStore.unlockArticle(articleId);
+      });
+    }
   }
 }
