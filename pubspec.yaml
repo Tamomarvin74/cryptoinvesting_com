@@ -11,11 +11,23 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # In-app purchases (PRO subscription)
+  in_app_purchase: ^3.2.0
+
+  # Sharing
   share_plus: ^10.0.2
+
+  # State management
   provider: ^6.1.2
+
+  # Networking
   http: ^1.2.0
   web_socket_channel: ^2.4.0
+
+  # Charts
   syncfusion_flutter_charts: ^26.1.41
+
+  # Utilities
   intl: ^0.19.0
 
 flutter:
