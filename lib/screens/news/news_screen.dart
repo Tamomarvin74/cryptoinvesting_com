@@ -51,7 +51,7 @@ class _NewsScreenState extends State<NewsScreen>
         children: [
           _searchBar(),
 
-          // 🔒 SHOW BANNER ONCE (NOT INSIDE _newsList)
+          // 🔒 PRO banner shown ONCE
           if (!ProStore.isPro) _proBanner(),
 
           Expanded(
@@ -116,7 +116,7 @@ class _NewsScreenState extends State<NewsScreen>
     );
   }
 
-  // 📰 NEWS LIST (ALWAYS RENDER NEWS)
+  // 📰 NEWS LIST WITH LOCKED ARTICLES
   Widget _newsList() {
     return RefreshIndicator(
       onRefresh: () async {
@@ -155,36 +155,100 @@ class _NewsScreenState extends State<NewsScreen>
             itemBuilder: (_, i) {
               final n = news[i];
 
-              return ListTile(
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    n.image,
-                    width: 70,
-                    height: 70,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                title: Text(
-                  n.title,
-                  style: const TextStyle(color: Colors.white),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text(
-                  n.source,
-                  style: const TextStyle(color: Colors.grey),
-                ),
+              // 🔒 LOCK EVERY 5TH ARTICLE FOR FREE USERS
+              final bool isLocked = !ProStore.isPro && i % 5 == 0;
+
+              return GestureDetector(
                 onTap: () {
+                  if (isLocked) {
+                    _showProDialog();
+                    return;
+                  }
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => NewsDetail(article: n)),
                   );
                 },
+                child: Stack(
+                  children: [
+                    _newsCard(n),
+
+                    if (isLocked)
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.6),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.lock,
+                              color: Colors.white,
+                              size: 36,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               );
             },
           );
         },
+      ),
+    );
+  }
+
+  // 🧱 NEWS CARD UI
+  Widget _newsCard(NewsArticle n) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E222D),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ListTile(
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.network(
+            n.image,
+            width: 70,
+            height: 70,
+            fit: BoxFit.cover,
+          ),
+        ),
+        title: Text(
+          n.title,
+          style: const TextStyle(color: Colors.white),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        subtitle: Text(n.source, style: const TextStyle(color: Colors.grey)),
+      ),
+    );
+  }
+
+  // 🔔 PRO DIALOG
+  void _showProDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('PRO Required'),
+        content: const Text('Unlock premium news with PRO subscription.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // 🔜 later: open IAP purchase screen
+            },
+            child: const Text('Go PRO'),
+          ),
+        ],
       ),
     );
   }
